@@ -15,6 +15,12 @@
       },
       "style": {
         "useConst": "error"
+      },
+      "complexity": {
+        "noForEach": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
       }
     }
   },
@@ -28,6 +34,7 @@
   },
   "javascript": {
     "formatter": {
+      "enabled": true,
       "quoteStyle": "single",
       "trailingComma": "es5",
       "semicolons": "always"
