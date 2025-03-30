@@ -36,7 +36,6 @@
     "formatter": {
       "enabled": true,
       "quoteStyle": "single",
-      "trailingComma": "es5",
       "semicolons": "always"
     }
   }
