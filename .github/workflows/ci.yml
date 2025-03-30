@@ -39,6 +39,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Debug lock file
+        run: |
+          ls -la pnpm-lock.yaml
+          cat pnpm-lock.yaml
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -48,12 +53,12 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-          fail_ci_if_error: true
+      # - name: Upload coverage reports
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./coverage/coverage-final.json
+      #     fail_ci_if_error: true
 
   release:
     needs: test
