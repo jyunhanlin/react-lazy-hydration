@@ -64,7 +64,11 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
 
       return (
         <div
-          ref={ref as React.RefObject<HTMLDivElement>}
+          ref={(node) => {
+            elementRef.current = node;
+            if (typeof ref === 'function') ref(node);
+            else if (ref) ref.current = node;
+          }}
           style={{ display: 'contents' }}
           id={id}
           suppressHydrationWarning
@@ -104,8 +108,8 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
         }}
         style={{ display: 'contents' }}
         id={id}
-        dangerouslySetInnerHTML={{ __html: htmlRef.current }}
         suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: htmlRef.current }}
       />
     );
   }
