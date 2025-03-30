@@ -4,25 +4,26 @@ A React component for lazy hydration of components, allowing you to defer the hy
 
 ## Why
 
-[Traditional approaches](https://github.com/facebook/react/issues/10923#issuecomment-338715787) to lazy hydration in React 18+ can lead to components temporarily rendering as empty strings, causing layout shifts (CLS) that negatively impact user experience.
+[Traditional approaches](https://github.com/facebook/react/issues/10923#issuecomment-338715787) to lazy hydration in React 18+ can lead to components temporarily rendering as empty string, causing layout shifts (CLS) that negatively impact user experience.
 
 This library solves these issues by:
 
 - Preserving the server-rendered HTML until hydration is needed
 - Preventing Content Layout Shifts (CLS) during hydration
-- Providing flexible triggers for when hydration should occur
-- Maintaining SEO-friendly server-rendered content
 
 ## Features
 
-- 🔄 Lazy hydration of React components
-- 👀 Intersection Observer support for viewport-based hydration
-- ⏱️ Idle callback support for background hydration
-- 🎯 Event-based hydration triggers
-- 🎨 Customizable fallback content
-- ⚡ Zero dependencies
+- Maintaining SEO-friendly server-rendered content
+- Lazy hydration of React components
+- Providing flexible triggers for when hydration should occur
+  - Intersection Observer support for viewport-based hydration
+  - Idle callback support for background hydration
+  - Event-based hydration triggers
+- Zero dependencies
 
 ## Installation
+
+WIP
 
 ## Usage
 
