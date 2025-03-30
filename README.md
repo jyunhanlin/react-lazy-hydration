@@ -1,6 +1,17 @@
 # React Lazy Hydration
 
-A React component for lazy hydration of components, allowing you to defer the hydration of components until they're needed. This helps improve initial page load performance by reducing the JavaScript bundle size that needs to be processed immediately.
+A React component for lazy hydration of components, allowing you to defer the hydration of server-side rendered components until they're needed.
+
+## Why
+
+[Traditional approaches](<(https://github.com/facebook/react/issues/10923#issuecomment-338715787)>) to lazy hydration in React 18+ can lead to components temporarily rendering as empty strings, causing layout shifts (CLS) that negatively impact user experience.
+
+This library solves these issues by:
+
+- Preserving the server-rendered HTML until hydration is needed
+- Preventing Content Layout Shifts (CLS) during hydration
+- Providing flexible triggers for when hydration should occur
+- Maintaining SEO-friendly server-rendered content
 
 ## Features
 
