@@ -4,7 +4,7 @@ A React component for lazy hydration of components, allowing you to defer the hy
 
 ## Why
 
-[Traditional approaches](<(https://github.com/facebook/react/issues/10923#issuecomment-338715787)>) to lazy hydration in React 18+ can lead to components temporarily rendering as empty strings, causing layout shifts (CLS) that negatively impact user experience.
+[Traditional approaches](https://github.com/facebook/react/issues/10923#issuecomment-338715787) to lazy hydration in React 18+ can lead to components temporarily rendering as empty strings, causing layout shifts (CLS) that negatively impact user experience.
 
 This library solves these issues by:
 
