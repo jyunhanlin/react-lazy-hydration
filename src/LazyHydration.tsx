@@ -40,20 +40,22 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
 
       // Idle Callback trigger
       if (idleCallback) {
+        const { timeout = 0 } = idleCallback;
+
         if ('requestIdleCallback' in window) {
           const idleId = window.requestIdleCallback(() => setShouldHydrate(true), {
-            timeout: idleCallback.timeout,
+            timeout,
           });
           cleanups.push(() => window.cancelIdleCallback(idleId));
         } else {
           // Fallback for browsers that don't support requestIdleCallback
-          const timeoutId = setTimeout(() => setShouldHydrate(true), idleCallback.timeout || 0);
+          const timeoutId = setTimeout(() => setShouldHydrate(true), timeout);
           cleanups.push(() => clearTimeout(timeoutId));
         }
       }
 
       // Event triggers
-      if (events.length > 0) {
+      if (events.length) {
         const handleEvent = () => setShouldHydrate(true);
         events.forEach((event) => {
           window.addEventListener(event, handleEvent, { once: true });
@@ -71,7 +73,7 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
     }, [intersectionObserver, idleCallback, events]);
 
     if (isServer || shouldHydrate || isHydrated.current) {
-      if (!isHydrated.current) isHydrated.current = true;
+      if (!isServer && !isHydrated.current) isHydrated.current = true;
 
       return (
         <div ref={handleRef} style={WRAPPER_STYLE} id={id} suppressHydrationWarning>
