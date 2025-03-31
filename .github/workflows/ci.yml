@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, rc]
   pull_request:
-    branches: [main]
+    branches: [main, rc]
 
 jobs:
   test:
@@ -48,17 +48,10 @@ jobs:
       - name: Test
         run: pnpm test
 
-      # - name: Upload coverage reports
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: ./coverage/coverage-final.json
-      #     fail_ci_if_error: true
-
   release:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc'
 
     steps:
       - uses: actions/checkout@v4
