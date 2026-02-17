@@ -19,24 +19,28 @@ This library solves these issues by:
   - Intersection Observer support for viewport-based hydration
   - Idle callback support for background hydration
   - Event-based hydration triggers
+- `ref` forwarding support
+- Legacy mode for pure client-side rendering scenarios
 - Zero dependencies
 
 ## Installation
 
-WIP
+```bash
+npm install react-lazy-hydration
+```
 
 ## Usage
 
 Basic usage:
 
 ```tsx
-import { LazyHydrate } from 'react-lazy-hydration';
+import { LazyHydration } from 'react-lazy-hydration';
 
 function App() {
   return (
-    <LazyHydrate>
+    <LazyHydration fallback={<div>Loading...</div>}>
       <YourComponent />
-    </LazyHydrate>
+    </LazyHydration>
   );
 }
 ```
@@ -44,41 +48,58 @@ function App() {
 Advanced usage with all features:
 
 ```tsx
-import { LazyHydrate } from 'react-lazy-hydration';
+import { LazyHydration } from 'react-lazy-hydration';
 
 function App() {
   return (
-    <LazyHydrate
+    <LazyHydration
       fallback={<div>Loading...</div>}
       intersectionObserver={{ threshold: 0.5 }}
       idleCallback={{ timeout: 2000 }}
       events={['scroll', 'mousemove']}
     >
       <YourComponent />
-    </LazyHydrate>
+    </LazyHydration>
   );
 }
 ```
 
+Legacy mode (skips SSR HTML preservation, renders empty content until hydration):
+
+```tsx
+<LazyHydration
+  fallback={<div>Loading...</div>}
+  legacy
+  idleCallback={{ timeout: 1000 }}
+>
+  <YourComponent />
+</LazyHydration>
+```
+
 ## Props
 
-| Prop                   | Type                     | Description                                        |
-| ---------------------- | ------------------------ | -------------------------------------------------- |
-| `children`             | ReactNode                | The component to be lazily hydrated                |
-| `fallback`             | ReactNode                | Optional fallback content to show before hydration |
-| `intersectionObserver` | IntersectionObserverInit | Optional configuration for Intersection Observer   |
-| `idleCallback`         | { timeout?: number }     | Optional configuration for requestIdleCallback     |
-| `events`               | string[]                 | Optional array of events that trigger hydration    |
+| Prop                   | Type                     | Required | Default | Description                                      |
+| ---------------------- | ------------------------ | -------- | ------- | ------------------------------------------------ |
+| `children`             | `ReactNode`              | Yes      | -       | The component to be lazily hydrated              |
+| `fallback`             | `ReactNode`              | Yes      | -       | Fallback content to show before hydration        |
+| `intersectionObserver` | `IntersectionObserverInit` | No     | -       | Configuration for Intersection Observer trigger  |
+| `idleCallback`         | `{ timeout?: number }`   | No       | -       | Configuration for requestIdleCallback trigger    |
+| `events`               | `string[]`               | No       | `[]`    | Array of events that trigger hydration           |
+| `legacy`               | `boolean`                | No       | `false` | Skip SSR HTML preservation, use empty innerHTML  |
+| `ref`                  | `Ref<HTMLDivElement>`    | No       | -       | Forwarded ref to the wrapper div                 |
 
-## How it works
+## How It Works
 
-1. During server-side rendering, the component is rendered normally
-2. On the client side, the component initially renders a static version
+1. During server-side rendering, the component renders normally
+2. On the client side, the server-rendered HTML is preserved via `dangerouslySetInnerHTML` to prevent layout shifts
 3. Hydration is triggered based on configured conditions:
-   - When the component enters the viewport (if intersectionObserver is configured)
-   - When the browser is idle (if idleCallback is configured)
-   - When specified events occur (if events are configured)
+   - When the component enters the viewport (Intersection Observer)
+   - When the browser is idle (`requestIdleCallback`, falls back to `setTimeout`)
+   - When specified DOM events occur
 4. Once triggered, the component fully hydrates and becomes interactive
+5. Once hydrated, the component stays hydrated across re-renders
+
+When `legacy` is enabled, step 2 is skipped — the wrapper renders with empty innerHTML instead of preserving server-rendered content.
 
 ## Development
 
