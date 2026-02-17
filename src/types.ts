@@ -11,4 +11,5 @@ export interface LazyHydrationProps {
     timeout?: number;
   };
   events?: string[];
+  legacy?: boolean;
 }

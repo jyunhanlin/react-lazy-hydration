@@ -1,13 +1,26 @@
-import React, { useId, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useId, useRef, useEffect, useState, useCallback } from "react";
 
-import type { LazyHydrationProps } from './types';
+import type { LazyHydrationProps } from "./types";
 
-const isServer = typeof window === 'undefined';
+const isServer = typeof window === "undefined";
 
-const WRAPPER_STYLE = { display: 'contents' };
+const WRAPPER_STYLE = { display: "contents" };
 
-export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps>(
-  ({ fallback, children, intersectionObserver, idleCallback, events = [] }, ref) => {
+export const LazyHydration = React.forwardRef<
+  HTMLDivElement,
+  LazyHydrationProps
+>(
+  (
+    {
+      fallback,
+      children,
+      intersectionObserver,
+      idleCallback,
+      events = [],
+      legacy = false,
+    },
+    ref,
+  ) => {
     const id = useId();
     const htmlRef = useRef<string | null>(null);
     const [shouldHydrate, setShouldHydrate] = useState(false);
@@ -17,10 +30,10 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
     const handleRef = useCallback(
       (node: HTMLDivElement | null) => {
         elementRef.current = node;
-        if (typeof ref === 'function') ref(node);
+        if (typeof ref === "function") ref(node);
         else if (ref) ref.current = node;
       },
-      [ref]
+      [ref],
     );
 
     useEffect(() => {
@@ -42,10 +55,13 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
       if (idleCallback) {
         const { timeout = 0 } = idleCallback;
 
-        if ('requestIdleCallback' in window) {
-          const idleId = window.requestIdleCallback(() => setShouldHydrate(true), {
-            timeout,
-          });
+        if ("requestIdleCallback" in window) {
+          const idleId = window.requestIdleCallback(
+            () => setShouldHydrate(true),
+            {
+              timeout,
+            },
+          );
           cleanups.push(() => window.cancelIdleCallback(idleId));
         } else {
           // Fallback for browsers that don't support requestIdleCallback
@@ -76,19 +92,41 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
       if (!isServer && !isHydrated.current) isHydrated.current = true;
 
       return (
-        <div ref={handleRef} style={WRAPPER_STYLE} id={id} suppressHydrationWarning>
+        <div
+          ref={handleRef}
+          style={WRAPPER_STYLE}
+          id={id}
+          suppressHydrationWarning
+        >
           {children}
         </div>
       );
     }
 
-    if (htmlRef.current === null) {
-      htmlRef.current = document.getElementById(id)?.innerHTML || '';
+    if (legacy) {
+      return (
+        <div
+          ref={handleRef}
+          style={WRAPPER_STYLE}
+          id={id}
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: "" }}
+        />
+      );
     }
 
-    if (htmlRef.current === '') {
+    if (htmlRef.current === null) {
+      htmlRef.current = document.getElementById(id)?.innerHTML || "";
+    }
+
+    if (htmlRef.current === "") {
       return (
-        <div ref={handleRef} style={WRAPPER_STYLE} id={id} suppressHydrationWarning>
+        <div
+          ref={handleRef}
+          style={WRAPPER_STYLE}
+          id={id}
+          suppressHydrationWarning
+        >
           {fallback}
         </div>
       );
@@ -103,5 +141,5 @@ export const LazyHydration = React.forwardRef<HTMLDivElement, LazyHydrationProps
         dangerouslySetInnerHTML={{ __html: htmlRef.current }}
       />
     );
-  }
+  },
 );
