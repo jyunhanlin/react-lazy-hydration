@@ -1,5 +1,6 @@
+import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { LazyHydration } from "../LazyHydration";
 
 // Mock IntersectionObserver
@@ -84,6 +85,150 @@ describe("LazyHydration", () => {
     });
 
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
+  });
+
+  it("renders empty innerHTML when legacy is true", () => {
+    const { container } = render(
+      <LazyHydration fallback={<FallbackComponent />} legacy>
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    const wrapper = container.firstElementChild!;
+    expect(wrapper.innerHTML).toBe("");
+    expect(screen.queryByTestId("test-child")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("fallback")).not.toBeInTheDocument();
+  });
+
+  it("legacy mode still hydrates when trigger fires", async () => {
+    render(
+      <LazyHydration
+        fallback={<FallbackComponent />}
+        legacy
+        idleCallback={{ timeout: 0 }}
+      >
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+  });
+
+  it("forwards ref to the wrapper div", () => {
+    const ref = React.createRef<HTMLDivElement>();
+    render(
+      <LazyHydration ref={ref} fallback={<FallbackComponent />}>
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(ref.current?.style.display).toBe("contents");
+  });
+
+  it("forwards callback ref to the wrapper div", () => {
+    const callbackRef = vi.fn();
+    render(
+      <LazyHydration ref={callbackRef} fallback={<FallbackComponent />}>
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    expect(callbackRef).toHaveBeenCalledWith(expect.any(HTMLDivElement));
+  });
+
+  it("does not hydrate when isIntersecting is false", () => {
+    mockIntersectionObserver.mockClear();
+    render(
+      <LazyHydration fallback={<FallbackComponent />} intersectionObserver={{}}>
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    const [[callback]] = mockIntersectionObserver.mock.calls;
+    act(() => {
+      callback([{ isIntersecting: false }]);
+    });
+
+    expect(screen.queryByTestId("test-child")).not.toBeInTheDocument();
+  });
+
+  it("stays hydrated after re-render once trigger has fired", async () => {
+    const { rerender } = render(
+      <LazyHydration
+        fallback={<FallbackComponent />}
+        idleCallback={{ timeout: 0 }}
+      >
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+
+    // Re-render with same props — should stay hydrated
+    rerender(
+      <LazyHydration
+        fallback={<FallbackComponent />}
+        idleCallback={{ timeout: 0 }}
+      >
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+    expect(screen.queryByTestId("fallback")).not.toBeInTheDocument();
+  });
+
+  it("hydrates from first trigger when multiple triggers are combined", () => {
+    mockIntersectionObserver.mockClear();
+    render(
+      <LazyHydration
+        fallback={<FallbackComponent />}
+        intersectionObserver={{}}
+        events={["click"]}
+      >
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    // Fire event trigger first
+    act(() => {
+      window.dispatchEvent(new Event("click"));
+    });
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+  });
+
+  it("falls back to setTimeout when requestIdleCallback is unavailable", async () => {
+    const original = global.requestIdleCallback;
+    // @ts-expect-error -- removing to test fallback path
+    delete global.requestIdleCallback;
+
+    render(
+      <LazyHydration
+        fallback={<FallbackComponent />}
+        idleCallback={{ timeout: 0 }}
+      >
+        <TestChild />
+      </LazyHydration>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+
+    // Restore
+    global.requestIdleCallback = original;
   });
 
   it("cleans up event listeners and observers on unmount", () => {
