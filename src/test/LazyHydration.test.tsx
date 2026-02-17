@@ -1,12 +1,13 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { LazyHydration } from "../LazyHydration";
 
 // Mock IntersectionObserver
 const mockIntersectionObserver = vi.fn();
 beforeAll(() => {
   global.IntersectionObserver = mockIntersectionObserver;
+  // biome-ignore lint/complexity/useArrowFunction: vitest v4 requires function expression for constructor mocks
   mockIntersectionObserver.mockImplementation(function () {
     return { observe: vi.fn(), disconnect: vi.fn() };
   });
@@ -94,8 +95,9 @@ describe("LazyHydration", () => {
       </LazyHydration>,
     );
 
-    const wrapper = container.firstElementChild!;
-    expect(wrapper.innerHTML).toBe("");
+    const wrapper = container.firstElementChild;
+    expect(wrapper).not.toBeNull();
+    expect(wrapper?.innerHTML).toBe("");
     expect(screen.queryByTestId("test-child")).not.toBeInTheDocument();
     expect(screen.queryByTestId("fallback")).not.toBeInTheDocument();
   });
@@ -233,6 +235,7 @@ describe("LazyHydration", () => {
 
   it("cleans up event listeners and observers on unmount", () => {
     const disconnectMock = vi.fn();
+    // biome-ignore lint/complexity/useArrowFunction: vitest v4 requires function expression for constructor mocks
     mockIntersectionObserver.mockImplementation(function () {
       return { observe: vi.fn(), disconnect: disconnectMock };
     });

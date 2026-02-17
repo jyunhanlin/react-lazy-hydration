@@ -84,7 +84,9 @@ export const LazyHydration = React.forwardRef<
       }
 
       return () => {
-        cleanups.forEach((cleanup) => cleanup());
+        cleanups.forEach((cleanup) => {
+          cleanup();
+        });
       };
     }, [intersectionObserver, idleCallback, events]);
 
