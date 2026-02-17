@@ -1,5 +1,5 @@
 export interface LazyHydrationProps {
-  fallback: React.ReactNode;
+  fallback?: React.ReactNode;
   children: React.ReactNode;
   // Trigger options
   intersectionObserver?: {

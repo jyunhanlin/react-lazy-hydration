@@ -25,6 +25,8 @@ This library solves these issues by:
 
 ## Installation
 
+> Not yet published to npm.
+
 ```bash
 npm install react-lazy-hydration
 ```
@@ -81,7 +83,7 @@ Legacy mode (skips SSR HTML preservation, renders empty content until hydration)
 | Prop                   | Type                     | Required | Default | Description                                      |
 | ---------------------- | ------------------------ | -------- | ------- | ------------------------------------------------ |
 | `children`             | `ReactNode`              | Yes      | -       | The component to be lazily hydrated              |
-| `fallback`             | `ReactNode`              | Yes      | -       | Fallback content to show before hydration        |
+| `fallback`             | `ReactNode`              | No       | -       | Fallback content to show before hydration        |
 | `intersectionObserver` | `IntersectionObserverInit` | No     | -       | Configuration for Intersection Observer trigger  |
 | `idleCallback`         | `{ timeout?: number }`   | No       | -       | Configuration for requestIdleCallback trigger    |
 | `events`               | `string[]`               | No       | `[]`    | Array of events that trigger hydration           |
