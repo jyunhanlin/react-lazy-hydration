@@ -1,6 +1,6 @@
 {
   "name": "@jyunhanlin/react-lazy-hydration",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "A React component for lazy hydration",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
