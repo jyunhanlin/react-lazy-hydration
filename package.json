@@ -1,5 +1,5 @@
 {
-  "name": "react-lazy-hydration",
+  "name": "@jyunhanlin/react-lazy-hydration",
   "version": "0.0.0-development",
   "description": "A React component for lazy hydration",
   "main": "dist/index.cjs",
@@ -74,6 +74,13 @@
       "biome lint",
       "biome check --apply"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jyunhanlin/react-lazy-hydration.git"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [

@@ -25,10 +25,18 @@ This library solves these issues by:
 
 ## Installation
 
-> Not yet published to npm.
+This package is published to [GitHub Packages](https://github.com/jyunhanlin/react-lazy-hydration/packages).
+
+1. Create or edit `.npmrc` in your project root:
+
+```
+@jyunhanlin:registry=https://npm.pkg.github.com
+```
+
+2. Install the package:
 
 ```bash
-npm install react-lazy-hydration
+npm install @jyunhanlin/react-lazy-hydration
 ```
 
 ## Usage
@@ -36,7 +44,7 @@ npm install react-lazy-hydration
 Basic usage:
 
 ```tsx
-import { LazyHydration } from 'react-lazy-hydration';
+import { LazyHydration } from '@jyunhanlin/react-lazy-hydration';
 
 function App() {
   return (
@@ -50,7 +58,7 @@ function App() {
 Advanced usage with all features:
 
 ```tsx
-import { LazyHydration } from 'react-lazy-hydration';
+import { LazyHydration } from '@jyunhanlin/react-lazy-hydration';
 
 function App() {
   return (
