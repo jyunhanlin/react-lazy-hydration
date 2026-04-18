@@ -4,12 +4,9 @@ A React component for lazy hydration of components, allowing you to defer the hy
 
 ## Why
 
-[Traditional approaches](https://github.com/facebook/react/issues/10923#issuecomment-338715787) to lazy hydration in React 18+ can lead to components temporarily rendering as empty string, causing layout shifts (CLS) that negatively impact user experience.
+Lazy hydration is a powerful optimization — skip hydrating non-critical components until they're actually needed — but [existing approaches in React 18+](https://github.com/facebook/react/issues/10923#issuecomment-338715787) have a catch: the un-hydrated component temporarily renders as an empty string, causing layout shift (CLS) and a flash of missing content.
 
-This library solves these issues by:
-
-- Preserving the server-rendered HTML until hydration is needed
-- Preventing Content Layout Shifts (CLS) during hydration
+`LazyHydration` avoids this by keeping the server-rendered HTML on screen, untouched, until a trigger fires. Your users see the real content from the first paint; React just defers the work of attaching interactivity.
 
 ## Features
 
@@ -41,6 +38,8 @@ npm install @jyunhanlin/react-lazy-hydration
 
 ## Usage
 
+`LazyHydration` preserves your server-rendered HTML until a trigger fires — so you usually don't need a `fallback`.
+
 Basic usage:
 
 ```tsx
@@ -48,51 +47,50 @@ import { LazyHydration } from '@jyunhanlin/react-lazy-hydration';
 
 function App() {
   return (
-    <LazyHydration fallback={<div>Loading...</div>}>
-      <YourComponent />
+    <LazyHydration intersectionObserver={{ rootMargin: '200px' }}>
+      <HeavyComponent />
     </LazyHydration>
   );
 }
 ```
 
-Advanced usage with all features:
+The server-rendered HTML of `HeavyComponent` stays on screen immediately. Hydration is deferred until the wrapper scrolls within `200px` of the viewport.
 
-```tsx
-import { LazyHydration } from '@jyunhanlin/react-lazy-hydration';
-
-function App() {
-  return (
-    <LazyHydration
-      fallback={<div>Loading...</div>}
-      intersectionObserver={{ threshold: 0.5 }}
-      idleCallback={{ timeout: 2000 }}
-      events={['scroll', 'mousemove']}
-    >
-      <YourComponent />
-    </LazyHydration>
-  );
-}
-```
-
-Legacy mode (skips SSR HTML preservation, renders empty content until hydration):
+Combining triggers:
 
 ```tsx
 <LazyHydration
-  fallback={<div>Loading...</div>}
-  legacy
-  idleCallback={{ timeout: 1000 }}
+  intersectionObserver={{ rootMargin: '200px' }}
+  idleCallback={{ timeout: 3000 }}
+  events={['mousemove']}
 >
-  <YourComponent />
+  <HeavyComponent />
 </LazyHydration>
 ```
+
+Any trigger that fires first wins. Above: hydrate when the component nears the viewport, after the browser goes idle (up to 3 seconds), or on the first `mousemove` — whichever happens first.
+
+Client-only rendering (`legacy` mode):
+
+```tsx
+<LazyHydration
+  legacy
+  fallback={<Skeleton />}
+  idleCallback={{ timeout: 1000 }}
+>
+  <ClientOnlyWidget />
+</LazyHydration>
+```
+
+In `legacy` mode the wrapper renders empty on the client instead of preserving SSR HTML — use this for pure client-side apps or components that don't render on the server. `fallback` is shown in the empty slot until a trigger fires.
 
 ## Props
 
 | Prop                   | Type                     | Required | Default | Description                                      |
 | ---------------------- | ------------------------ | -------- | ------- | ------------------------------------------------ |
 | `children`             | `ReactNode`              | Yes      | -       | The component to be lazily hydrated              |
-| `fallback`             | `ReactNode`              | No       | -       | Fallback content to show before hydration        |
-| `intersectionObserver` | `IntersectionObserverInit` | No     | -       | Configuration for Intersection Observer trigger  |
+| `fallback`             | `ReactNode`              | No       | -       | Fallback content shown before hydration — only rendered when there's no SSR HTML to preserve (i.e. in legacy mode or pure CSR) |
+| `intersectionObserver` | `IntersectionObserverInit` | No     | -       | Hydrate when the wrapper intersects the viewport (passed to IntersectionObserver) |
 | `idleCallback`         | `{ timeout?: number }`   | No       | -       | Configuration for requestIdleCallback trigger    |
 | `events`               | `string[]`               | No       | `[]`    | Array of events that trigger hydration           |
 | `legacy`               | `boolean`                | No       | `false` | Skip SSR HTML preservation, use empty innerHTML  |
@@ -101,7 +99,7 @@ Legacy mode (skips SSR HTML preservation, renders empty content until hydration)
 ## How It Works
 
 1. During server-side rendering, the component renders normally
-2. On the client side, the server-rendered HTML is preserved via `dangerouslySetInnerHTML` to prevent layout shifts
+2. On the client, the server-rendered HTML stays visible as-is until hydration triggers — no flash, no layout shift. Internally the captured HTML is re-injected into the wrapper div so React can skip re-rendering it on mount
 3. Hydration is triggered based on configured conditions:
    - When the component enters the viewport (Intersection Observer)
    - When the browser is idle (`requestIdleCallback`, falls back to `setTimeout`)
