@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 import { jsx } from "react/jsx-runtime";
-
 //#region src/LazyHydration.tsx
 const isServer = typeof window === "undefined";
 const WRAPPER_STYLE = { display: "contents" };
@@ -91,7 +90,7 @@ const LazyHydration = React.forwardRef(({ fallback, children, intersectionObserv
 		dangerouslySetInnerHTML: { __html: htmlRef.current }
 	});
 });
-
 //#endregion
 export { LazyHydration };
+
 //# sourceMappingURL=index.mjs.map
