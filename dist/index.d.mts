@@ -1,5 +1,4 @@
 import React$1 from "react";
-
 //#region src/types.d.ts
 interface LazyHydrationProps {
   fallback?: React.ReactNode;
